@@ -4,7 +4,7 @@ import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/react"
 
 export const metadata: Metadata = {
-  title: "Json.View",
+  title: "JsonLite",
   description: "simple json viewer",
 };
 

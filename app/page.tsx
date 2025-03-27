@@ -165,7 +165,7 @@ export default function Home() {
             className="text-3xl font-bold tracking-tight mb-2 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400"
             variants={item}
           >
-            JSON.View
+            JsonLite
           </motion.h1>
           <motion.p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto" variants={item}>
             Simple JSON viewer where you can edit in-place.

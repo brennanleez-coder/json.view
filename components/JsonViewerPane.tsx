@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { FileJson, Expand, Shrink } from "lucide-react"
+import { FileJson, Expand, Shrink, Copy } from "lucide-react"
 import { JsonTreeView } from "@/components/JsonTreeView"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -14,6 +14,7 @@ interface JsonViewerPaneProps {
   isMobile: boolean
   expandAll: () => void
   collapseAll: () => void
+  copyToLLM?: () => void
 }
 
 const JsonViewerPane = ({
@@ -24,6 +25,7 @@ const JsonViewerPane = ({
   isMobile,
   expandAll,
   collapseAll,
+  copyToLLM,
 }: JsonViewerPaneProps) => {
   return (
     <div
@@ -37,6 +39,12 @@ const JsonViewerPane = ({
           <span>JSON Viewer</span>
         </h2>
         <div className="flex items-center gap-2">
+          {copyToLLM && (
+            <Button variant="outline" size="sm" onClick={copyToLLM} className="h-7 sm:h-8 text-xs sm:text-sm">
+              <Copy className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+              Copy to LLM
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={expandAll} className="h-7 sm:h-8 text-xs sm:text-sm">
             <Expand className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
             Expand All

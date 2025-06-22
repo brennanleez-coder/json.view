@@ -14,6 +14,8 @@ import JsonViewerPane from "@/components/JsonViewerPane";
 
 interface JsonViewerProps {
   initialJson: any;
+  copyToLLM?: (json: any) => void;
+  hideEditingButtons?: boolean;
 }
 
 function collectAllPaths(obj: any, currentPath: string[], paths: Set<string>) {
@@ -31,7 +33,7 @@ function collectAllPaths(obj: any, currentPath: string[], paths: Set<string>) {
   }
 }
 
-export default function JsonViewer({ initialJson }: JsonViewerProps) {
+export default function JsonViewer({ initialJson, copyToLLM, hideEditingButtons }: JsonViewerProps) {
   const [jsonString, setJsonString] = useState("");
   const [parsedJson, setParsedJson] = useState<any>(initialJson);
   const [error, setError] = useState<string | null>(null);
@@ -252,6 +254,16 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
     lineNumbersRef.current.scrollTop = textAreaRef.current.scrollTop;
   };
 
+  const handleCopyToLLM = () => {
+    if (copyToLLM) {
+      copyToLLM(parsedJson);
+    } else {
+      const minifiedJson = JSON.stringify(parsedJson);
+      navigator.clipboard.writeText(minifiedJson);
+      toast.success("Minified JSON copied to clipboard!");
+    }
+  };
+
   return (
     <motion.div
       className={`flex ${
@@ -282,6 +294,7 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
         lineNumbersRef={lineNumbersRef}
         textAreaRef={textAreaRef}
         isMobile={isMobile}
+        hideEditingButtons={hideEditingButtons}
       />
 
       {isMobile && (
@@ -296,6 +309,7 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
         isMobile={isMobile}
         expandAll={expandAll}
         collapseAll={collapseAll}
+        copyToLLM={handleCopyToLLM}
       />
     </motion.div>
   );

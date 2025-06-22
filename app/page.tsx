@@ -1,17 +1,43 @@
 "use client"
 
-import { useState } from "react"
-import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
+import { motion, Variants } from "framer-motion"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { basicJson } from "@/lib/data"
 import JsonViewerTab from "@/components/JsonViewerTab"
+import { Server } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import HttpTester from "@/components/HttpTester"
+
+const MAIN_TAB_STORAGE_KEY = "jsonlite-main-tab";
 
 export default function Home() {
-  const [currentJson, setCurrentJson] = useState(basicJson)
+  const [currentJson, setCurrentJson] = useState<object>(basicJson)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState("json")
 
-  // Framer Motion variants
-  const container = {
+  // Load active tab from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(MAIN_TAB_STORAGE_KEY);
+      if (saved && (saved === "json" || saved === "http")) {
+        setActiveTab(saved);
+      }
+    } catch (error) {
+      console.warn("Failed to load main tab from localStorage:", error);
+    }
+  }, []);
+
+  // Save active tab to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(MAIN_TAB_STORAGE_KEY, activeTab);
+    } catch (error) {
+      console.warn("Failed to save main tab to localStorage:", error);
+    }
+  }, [activeTab]);
+
+  const container: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -22,7 +48,7 @@ export default function Home() {
     },
   }
 
-  const item = {
+  const item: Variants = {
     hidden: { y: 20, opacity: 0 },
     show: {
       y: 0,
@@ -42,7 +68,7 @@ export default function Home() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <Tabs defaultValue="json" className="flex-1">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
         <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-full">
           <motion.div
             className="mb-4 sm:mb-6 lg:mb-8 text-center"
@@ -91,17 +117,7 @@ export default function Home() {
 
           
           <TabsContent value="http">
-            <motion.div
-              className="p-4 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl bg-white dark:bg-gray-900"
-              variants={item}
-              initial="hidden"
-              animate="show"
-            >
-              <h2 className="text-xl font-semibold mb-4">HTTP Tester</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                Coming Soon.
-              </p>
-            </motion.div>
+            <HttpTester />
           </TabsContent>
         </div>
       </Tabs>

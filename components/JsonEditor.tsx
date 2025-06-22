@@ -28,6 +28,7 @@ interface JsonEditorProps {
   lineNumbersRef: RefObject<HTMLDivElement | null>
   textAreaRef: RefObject<HTMLTextAreaElement | null>
   isMobile: boolean
+  hideEditingButtons?: boolean
 }
 
 const JsonEditor = ({
@@ -47,6 +48,7 @@ const JsonEditor = ({
   lineNumbersRef,
   textAreaRef,
   isMobile,
+  hideEditingButtons,
 }: JsonEditorProps) => {
   return (
     <div
@@ -60,56 +62,60 @@ const JsonEditor = ({
           <span>JSON Editor</span>
         </h2>
         <div className="flex flex-wrap gap-1 sm:gap-2 items-center">
-          <div className="relative">
-            <input
-              type="file"
-              accept=".json,.xml"
-              onChange={handleFileUpload}
-              className="absolute inset-0 opacity-0 z-10 cursor-pointer"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              className="relative z-0 h-7 sm:h-8 px-2 sm:px-3 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
-            >
-              <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Upload JSON</span>
-              <span className="sm:hidden">Upload</span>
-            </Button>
-          </div>
+          {!hideEditingButtons && (
+            <>
+              <div className="relative">
+                <input
+                  type="file"
+                  accept=".json,.xml"
+                  onChange={handleFileUpload}
+                  className="absolute inset-0 opacity-0 z-10 cursor-pointer"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="relative z-0 h-7 sm:h-8 px-2 sm:px-3 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                >
+                  <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Upload JSON</span>
+                  <span className="sm:hidden">Upload</span>
+                </Button>
+              </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={formatJson}
-            className="h-7 sm:h-8 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-xs sm:text-sm px-2 sm:px-3"
-          >
-            <Code className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
-            <span className="hidden sm:inline">Format</span>
-            <span className="sm:hidden">Fmt</span>
-          </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={formatJson}
+                className="h-7 sm:h-8 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-xs sm:text-sm px-2 sm:px-3"
+              >
+                <Code className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
+                <span className="hidden sm:inline">Format</span>
+                <span className="sm:hidden">Fmt</span>
+              </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={cleanEscapedJsonHandler}
-            className="h-7 sm:h-8 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-xs sm:text-sm px-2 sm:px-3"
-          >
-            <Code className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
-            <span className="hidden sm:inline">Clean Escaped</span>
-            <span className="sm:hidden">Clean</span>
-          </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={cleanEscapedJsonHandler}
+                className="h-7 sm:h-8 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-xs sm:text-sm px-2 sm:px-3"
+              >
+                <Code className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
+                <span className="hidden sm:inline">Clean Escaped</span>
+                <span className="sm:hidden">Clean</span>
+              </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={expandStringifiedJsonHandler}
-            className="h-7 sm:h-8 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-xs sm:text-sm px-2 sm:px-3"
-          >
-            <Code className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
-            <span className="hidden sm:inline">Expand Stringified</span>
-            <span className="sm:hidden">Expand</span>
-          </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={expandStringifiedJsonHandler}
+                className="h-7 sm:h-8 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-xs sm:text-sm px-2 sm:px-3"
+              >
+                <Code className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
+                <span className="hidden sm:inline">Expand Stringified</span>
+                <span className="sm:hidden">Expand</span>
+              </Button>
+            </>
+          )}
 
           <TooltipProvider>
             <Tooltip>

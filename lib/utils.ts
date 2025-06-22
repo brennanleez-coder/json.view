@@ -72,3 +72,50 @@ export function cleanEscapedJson(jsonString: string, expandStringified: boolean 
     return cleaned;
   }
 }
+
+export function generateJsonSchema(obj: any): any {
+  if (obj === null) {
+    return { type: "null" };
+  }
+
+  if (typeof obj === "string") {
+    return { type: "string" };
+  }
+
+  if (typeof obj === "number") {
+    return { type: "number" };
+  }
+
+  if (typeof obj === "boolean") {
+    return { type: "boolean" };
+  }
+
+  if (Array.isArray(obj)) {
+    if (obj.length === 0) {
+      return { type: "array", items: {} };
+    }
+
+    // Get schema from first item
+    const firstItemSchema = generateJsonSchema(obj[0]);
+    
+    return {
+      type: "array",
+      items: firstItemSchema
+    };
+  }
+
+  if (typeof obj === "object" && obj !== null) {
+    const properties: Record<string, any> = {};
+
+    for (const [key, value] of Object.entries(obj)) {
+      properties[key] = generateJsonSchema(value);
+    }
+
+    return {
+      type: "object",
+      properties
+    };
+  }
+
+  return { type: "object" };
+}

@@ -114,3 +114,25 @@ export const apiResponseJson = {
     },
   ],
 }
+
+// Example 4: API event with a stringified JSON body
+export const stringifiedJson = {
+  "id": "evt_1a2b3c4d5e6f",
+  "object": "event",
+  "api_version": "2024-06-20",
+  "created": 1718910000,
+  "type": "payment_intent.succeeded",
+  "data": {
+    "object": {
+      "id": "pi_1a2b3c4d5e6f",
+      "object": "payment_intent",
+      "amount": 1000,
+      "currency": "usd"
+    }
+  },
+  "request": {
+    "id": "req_1a2b3c4d",
+    "idempotency_key": "some-random-key-123"
+  },
+  "body": "{\"type\":\"UPDATE\",\"table\":\"GenericTable\",\"record\":{\"id\":\"A206FCB2-9936-4CFA-A7F9-FF9289A3BCB9\",\"title\":\"Generic Record Title\"}}"
+}

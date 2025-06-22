@@ -24,12 +24,10 @@ export function JsonTreeView({
   const pathString = path.join(".")
   const isExpanded = expandedPaths.has(pathString)
 
-  // null
   if (data === null) {
     return <div className="italic text-gray-500 dark:text-gray-400">null</div>
   }
 
-  // boolean
   if (typeof data === "boolean") {
     return (
       <Select
@@ -47,7 +45,6 @@ export function JsonTreeView({
     )
   }
 
-  // number
   if (typeof data === "number") {
     return (
       <Input
@@ -59,19 +56,47 @@ export function JsonTreeView({
     )
   }
 
-  // string
   if (typeof data === "string") {
+    const isStringifiedJson = (str: string) => {
+      const trimmed = str.trim();
+      return (trimmed.startsWith('{') && trimmed.endsWith('}')) || 
+             (trimmed.startsWith('[') && trimmed.endsWith(']'));
+    };
+
+    const tryParseJson = (str: string) => {
+      try {
+        return JSON.parse(str);
+      } catch {
+        return null;
+      }
+    };
+
+    const parsedJson = tryParseJson(data);
+    const isJson = isStringifiedJson(data) && parsedJson !== null;
+
     return (
-      <Input
-        type="text"
-        value={data}
-        onChange={(e) => updateValue(path, e.target.value)}
-        className="h-7 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
-      />
+      <div className="flex items-center gap-2">
+        <Input
+          type="text"
+          value={data}
+          onChange={(e) => updateValue(path, e.target.value)}
+          className="h-7 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
+        />
+        {isJson && (
+          <button
+            onClick={() => {
+              updateValue(path, parsedJson);
+            }}
+            className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+            title="Expand as JSON"
+          >
+            Expand JSON
+          </button>
+        )}
+      </div>
     )
   }
 
-  // array
   if (Array.isArray(data)) {
     return (
       <div>
@@ -115,7 +140,6 @@ export function JsonTreeView({
     )
   }
 
-  // object
   return (
     <div>
       <div

@@ -1,20 +1,20 @@
 "use client"
 
 import { Dispatch, SetStateAction } from "react"
-import { motion } from "framer-motion"
+import { motion, Variants } from "framer-motion"
 import { Code, FileJson, Database, History } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import JsonViewer from "@/components/JsonViewer"
 import { HistoryDialog } from "@/components/history-dialog"
-import { basicJson, arrayOfArraysJson, apiResponseJson } from "@/lib/data"
+import { basicJson, arrayOfArraysJson, apiResponseJson, stringifiedJson } from "@/lib/data"
 
 interface JsonViewerTabProps {
   currentJson: object
   setCurrentJson: Dispatch<SetStateAction<object>>
   historyOpen: boolean
   setHistoryOpen: Dispatch<SetStateAction<boolean>>
-  container: object
-  item: object
+  container: Variants
+  item: Variants
 }
 
 const JsonViewerTab = ({
@@ -27,9 +27,8 @@ const JsonViewerTab = ({
 }: JsonViewerTabProps) => {
   return (
     <>
-      {/* Buttons to switch among various JSON examples */}
       <motion.div
-        className="flex flex-wrap gap-2 mb-6 justify-center"
+        className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4 justify-center"
         variants={container}
         initial="hidden"
         animate="show"
@@ -39,10 +38,11 @@ const JsonViewerTab = ({
             size="sm"
             variant={currentJson === basicJson ? "default" : "outline"}
             onClick={() => setCurrentJson(basicJson)}
-            className="rounded-full transition-all duration-200 flex items-center gap-1.5"
+            className="rounded-full transition-all duration-200 flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
           >
-            <FileJson className="h-4 w-4" />
-            Basic JSON
+            <FileJson className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden xs:inline">Basic JSON</span>
+            <span className="xs:hidden">Basic</span>
           </Button>
         </motion.div>
 
@@ -51,10 +51,11 @@ const JsonViewerTab = ({
             size="sm"
             variant={currentJson === arrayOfArraysJson ? "default" : "outline"}
             onClick={() => setCurrentJson(arrayOfArraysJson)}
-            className="rounded-full transition-all duration-200 flex items-center gap-1.5"
+            className="rounded-full transition-all duration-200 flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
           >
-            <Code className="h-4 w-4" />
-            Arrays of Arrays
+            <Code className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Arrays of Arrays</span>
+            <span className="sm:hidden">Arrays</span>
           </Button>
         </motion.div>
 
@@ -63,10 +64,24 @@ const JsonViewerTab = ({
             size="sm"
             variant={currentJson === apiResponseJson ? "default" : "outline"}
             onClick={() => setCurrentJson(apiResponseJson)}
-            className="rounded-full transition-all duration-200 flex items-center gap-1.5"
+            className="rounded-full transition-all duration-200 flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
           >
-            <Database className="h-4 w-4" />
-            API Response
+            <Database className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">API Response</span>
+            <span className="sm:hidden">API</span>
+          </Button>
+        </motion.div>
+
+        <motion.div variants={item}>
+          <Button
+            size="sm"
+            variant={currentJson === stringifiedJson ? "default" : "outline"}
+            onClick={() => setCurrentJson(stringifiedJson)}
+            className="rounded-full transition-all duration-200 flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
+          >
+            <Code className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Stringified Body</span>
+            <span className="sm:hidden">String</span>
           </Button>
         </motion.div>
 
@@ -75,17 +90,17 @@ const JsonViewerTab = ({
             size="sm"
             variant="outline"
             onClick={() => setHistoryOpen(true)}
-            className="rounded-full transition-all duration-200 flex items-center gap-1.5"
+            className="rounded-full transition-all duration-200 flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
           >
-            <History className="h-4 w-4" />
-            History
+            <History className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden xs:inline">History</span>
+            <span className="xs:hidden">Hist</span>
           </Button>
         </motion.div>
       </motion.div>
 
-      {/* The JSON viewer container */}
       <motion.div
-        className="w-full flex-1 shadow-xl rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800"
+        className="w-full flex-1 shadow-xl rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 mx-0 sm:mx-0"
         variants={item}
         initial="hidden"
         animate="show"
@@ -93,9 +108,8 @@ const JsonViewerTab = ({
         <JsonViewer initialJson={currentJson} />
       </motion.div>
 
-      {/* A small footer text */}
       <motion.div
-        className="mt-6 text-center text-xs text-gray-400 dark:text-gray-600"
+        className="mt-3 sm:mt-4 text-center text-xs text-gray-400 dark:text-gray-600 px-2"
         variants={item}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -104,7 +118,6 @@ const JsonViewerTab = ({
         Edit, format, and visualize JSON with ease
       </motion.div>
 
-      {/* History Dialog */}
       <HistoryDialog
         open={historyOpen}
         onOpenChange={setHistoryOpen}

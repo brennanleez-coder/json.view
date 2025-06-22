@@ -43,21 +43,21 @@ export default function Home() {
       transition={{ duration: 0.5 }}
     >
       <Tabs defaultValue="json" className="flex-1">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-full">
           <motion.div
-            className="mb-8 text-center"
+            className="mb-4 sm:mb-6 lg:mb-8 text-center"
             variants={container}
             initial="hidden"
             animate="show"
           >
             <motion.h1
-              className="text-3xl font-bold tracking-tight mb-2 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400"
+              className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-2 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400"
               variants={item}
             >
               JsonLite
             </motion.h1>
             <motion.p
-              className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto"
+              className="text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-2xl mx-auto px-2"
               variants={item}
             >
               Simple JSON viewer with a built-in HTTP tester.
@@ -66,14 +66,14 @@ export default function Home() {
 
           {/* Tabs: JSON Viewer vs. HTTP Tester */}
           <motion.div
-            className="mb-6 flex justify-center"
+            className="mb-4 sm:mb-6 flex justify-center"
             variants={container}
             initial="hidden"
             animate="show"
           >
-            <TabsList className="flex gap-2">
-              <TabsTrigger value="json">JSON Viewer</TabsTrigger>
-              <TabsTrigger value="http">HTTP Tester</TabsTrigger>
+            <TabsList className="flex gap-1 sm:gap-2 text-xs sm:text-sm">
+              <TabsTrigger value="json" className="px-3 sm:px-4">JSON Viewer</TabsTrigger>
+              <TabsTrigger value="http" className="px-3 sm:px-4">HTTP Tester</TabsTrigger>
             </TabsList>
           </motion.div>
 

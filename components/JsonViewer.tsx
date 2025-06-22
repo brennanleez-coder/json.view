@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { saveJsonToHistory } from "@/lib/json-history";
 import { useMobile } from "@/hooks/use-mobile";
+import { cleanEscapedJson } from "@/lib/utils";
 
 import JsonEditor from "@/components/JsonEditor";
 import JsonViewerPane from "@/components/JsonViewerPane";
@@ -36,7 +37,6 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Track which paths in the tree are expanded
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(() => {
     const paths = new Set<string>();
     collectAllPaths(initialJson, [], paths);
@@ -45,11 +45,9 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
 
   const isMobile = useMobile();
 
-  // Refs for scroll-sync
   const lineNumbersRef = useRef<HTMLDivElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Load up the initial JSON into the editor
   useEffect(() => {
     try {
       setJsonString(JSON.stringify(initialJson, null, 2));
@@ -60,7 +58,6 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
     }
   }, [initialJson]);
 
-  /** Insert a tab character on Tab key */
   const handleTabKey = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Tab") {
       e.preventDefault();
@@ -71,7 +68,6 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
         jsonString.substring(selectionEnd);
       setJsonString(newValue);
 
-      // Update cursor position (next tick)
       requestAnimationFrame(() => {
         e.currentTarget.selectionStart = e.currentTarget.selectionEnd =
           selectionStart + 1;
@@ -79,7 +75,6 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
     }
   };
 
-  /** Show error with line info if possible (Sonner toast) */
   const showErrorWithLineInfo = (err: unknown) => {
     let errorMessage = "Invalid JSON";
     if (err instanceof SyntaxError) {
@@ -96,7 +91,6 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
     toast.error(errorMessage);
   };
 
-  /** Parse and set JSON if valid, otherwise set error */
   const handleJsonChange = (value: string) => {
     setJsonString(value);
     try {
@@ -108,7 +102,34 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
     }
   };
 
-  /** Pretty-print the JSON with 2 spaces of indentation */
+  const cleanEscapedJsonHandler = () => {
+    try {
+      const cleaned = cleanEscapedJson(jsonString, true);
+      setJsonString(cleaned);
+      
+      const parsed = JSON.parse(cleaned);
+      setParsedJson(parsed);
+      setError(null);
+      toast.success("Escaped JSON cleaned and expanded successfully");
+    } catch (err) {
+      showErrorWithLineInfo(err);
+    }
+  };
+
+  const expandStringifiedJsonHandler = () => {
+    try {
+      const expanded = cleanEscapedJson(jsonString, true);
+      setJsonString(expanded);
+      
+      const parsed = JSON.parse(expanded);
+      setParsedJson(parsed);
+      setError(null);
+      toast.success("Stringified JSON fields expanded successfully");
+    } catch (err) {
+      showErrorWithLineInfo(err);
+    }
+  };
+
   const formatJson = () => {
     try {
       const parsed = JSON.parse(jsonString);
@@ -121,13 +142,11 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
     }
   };
 
-  /** Copy editor text to clipboard */
   const copyToClipboard = () => {
     navigator.clipboard.writeText(jsonString).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
 
-      // Save to local history if valid
       try {
         const parsed = JSON.parse(jsonString);
         saveJsonToHistory(parsed);
@@ -137,7 +156,6 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
     });
   };
 
-  /** Handle file upload (JSON/XML) */
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -174,10 +192,9 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
     };
 
     reader.readAsText(file);
-    e.target.value = ""; // reset for re-uploading same file
+    e.target.value = "";
   };
 
-  /** Expand/collapse items in the tree */
   const togglePath = (path: string) => {
     const newExpandedPaths = new Set(expandedPaths);
     if (newExpandedPaths.has(path)) {
@@ -188,7 +205,6 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
     setExpandedPaths(newExpandedPaths);
   };
 
-  /** Update a nested JSON value in the tree */
   const updateValue = (path: string[], value: any) => {
     const newJson = structuredClone(parsedJson);
     let current = newJson;
@@ -200,7 +216,27 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
     setJsonString(JSON.stringify(newJson, null, 2));
   };
 
-  /** Re-expand all paths if we successfully parse new JSON */
+  const expandAll = () => {
+    try {
+      const cleanedString = cleanEscapedJson(jsonString, true);
+      const newParsedJson = JSON.parse(cleanedString);
+      
+      setJsonString(JSON.stringify(newParsedJson, null, 2));
+      setParsedJson(newParsedJson);
+
+      const paths = new Set<string>();
+      collectAllPaths(newParsedJson, [], paths);
+      setExpandedPaths(paths);
+      toast.success("Expanded all nodes and stringified JSON");
+    } catch (err) {
+      showErrorWithLineInfo(err);
+    }
+  };
+
+  const collapseAll = () => {
+    setExpandedPaths(new Set([""]));
+  };
+
   useEffect(() => {
     if (!error) {
       const paths = new Set<string>();
@@ -209,10 +245,8 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
     }
   }, [parsedJson, error]);
 
-  // Dynamic line numbers
   const totalLines = jsonString.split("\n").length;
 
-  /** Sync line numbers scrolling with the textarea */
   const handleScroll = () => {
     if (!lineNumbersRef.current || !textAreaRef.current) return;
     lineNumbersRef.current.scrollTop = textAreaRef.current.scrollTop;
@@ -221,8 +255,8 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
   return (
     <motion.div
       className={`flex ${
-        isMobile ? "flex-col" : "flex-row"
-      } w-full h-[calc(100vh-220px)] bg-white dark:bg-gray-950`}
+        isMobile ? "flex-col gap-2" : "flex-row"
+      } w-full h-[calc(100vh-200px)] sm:h-[calc(100vh-220px)] lg:h-[calc(100vh-240px)] bg-white dark:bg-gray-950`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -231,7 +265,6 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
         stiffness: 100,
       }}
     >
-      {/* Left Editor Pane */}
       <JsonEditor
         jsonString={jsonString}
         setJsonString={setJsonString}
@@ -239,6 +272,8 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
         copied={copied}
         copyToClipboard={copyToClipboard}
         formatJson={formatJson}
+        cleanEscapedJsonHandler={cleanEscapedJsonHandler}
+        expandStringifiedJsonHandler={expandStringifiedJsonHandler}
         handleFileUpload={handleFileUpload}
         handleJsonChange={handleJsonChange}
         handleTabKey={handleTabKey}
@@ -249,13 +284,18 @@ export default function JsonViewer({ initialJson }: JsonViewerProps) {
         isMobile={isMobile}
       />
 
-      {/* Right Viewer Pane */}
+      {isMobile && (
+        <div className="h-px bg-gray-200 dark:bg-gray-800 mx-2" />
+      )}
+
       <JsonViewerPane
         parsedJson={parsedJson}
         expandedPaths={expandedPaths}
         togglePath={togglePath}
         updateValue={updateValue}
         isMobile={isMobile}
+        expandAll={expandAll}
+        collapseAll={collapseAll}
       />
     </motion.div>
   );

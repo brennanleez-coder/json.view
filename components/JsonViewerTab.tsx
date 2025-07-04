@@ -15,6 +15,7 @@ interface JsonViewerTabProps {
   setHistoryOpen: Dispatch<SetStateAction<boolean>>
   container: Variants
   item: Variants
+  onJsonChange?: (json: any) => void
 }
 
 const JsonViewerTab = ({
@@ -24,6 +25,7 @@ const JsonViewerTab = ({
   setHistoryOpen,
   container,
   item,
+  onJsonChange,
 }: JsonViewerTabProps) => {
   return (
     <>
@@ -105,7 +107,7 @@ const JsonViewerTab = ({
         initial="hidden"
         animate="show"
       >
-        <JsonViewer initialJson={currentJson} />
+        <JsonViewer initialJson={currentJson} onJsonChange={onJsonChange} />
       </motion.div>
 
       <motion.div

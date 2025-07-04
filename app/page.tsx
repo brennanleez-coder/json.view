@@ -3,11 +3,14 @@
 import { useState, useEffect } from "react"
 import { motion, Variants } from "framer-motion"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
 import { basicJson } from "@/lib/data"
+import { getJsonFromUrl, updateUrlWithJson } from "@/lib/utils"
 import JsonViewerTab from "@/components/JsonViewerTab"
-import { Server } from "lucide-react"
+import { Server, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import HttpTester from "@/components/HttpTester"
+import { toast } from "sonner"
 
 const MAIN_TAB_STORAGE_KEY = "jsonlite-main-tab";
 
@@ -15,6 +18,20 @@ export default function Home() {
   const [currentJson, setCurrentJson] = useState<object>(basicJson)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("json")
+  const [isShared, setIsShared] = useState(false)
+
+  // Load JSON from URL on mount
+  useEffect(() => {
+    try {
+      const urlJson = getJsonFromUrl();
+      if (urlJson) {
+        setCurrentJson(urlJson);
+        setIsShared(true);
+      }
+    } catch (error) {
+      console.warn("Failed to load JSON from URL:", error);
+    }
+  }, []);
 
   // Load active tab from localStorage on mount
   useEffect(() => {
@@ -36,6 +53,20 @@ export default function Home() {
       console.warn("Failed to save main tab to localStorage:", error);
     }
   }, [activeTab]);
+
+  // Update URL when JSON changes
+  useEffect(() => {
+    updateUrlWithJson(currentJson);
+    setIsShared(true);
+  }, [currentJson]);
+
+  const copyCurrentUrl = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      toast.success("URL copied to clipboard!");
+    }).catch(() => {
+      toast.error("Failed to copy URL");
+    });
+  };
 
   const container: Variants = {
     hidden: { opacity: 0 },
@@ -88,6 +119,27 @@ export default function Home() {
             >
               Simple JSON viewer with a built-in HTTP tester.
             </motion.p>
+            {isShared && (
+              <motion.div
+                variants={item}
+                initial="hidden"
+                animate="show"
+                className="flex justify-center mt-2 gap-2"
+              >
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <Share2 className="h-3 w-3" />
+                  <span className="text-xs">Shared via URL</span>
+                </Badge>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={copyCurrentUrl}
+                  className="h-6 px-2 text-xs"
+                >
+                  Copy URL
+                </Button>
+              </motion.div>
+            )}
           </motion.div>
 
           {/* Tabs: JSON Viewer vs. HTTP Tester */}
@@ -112,6 +164,7 @@ export default function Home() {
               setHistoryOpen={setHistoryOpen}
               container={container}
               item={item}
+              onJsonChange={setCurrentJson}
             />
           </TabsContent>
 

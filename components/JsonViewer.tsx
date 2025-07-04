@@ -16,6 +16,7 @@ interface JsonViewerProps {
   initialJson: any;
   copyToLLM?: (json: any) => void;
   hideEditingButtons?: boolean;
+  onJsonChange?: (json: any) => void;
 }
 
 function collectAllPaths(obj: any, currentPath: string[], paths: Set<string>) {
@@ -33,7 +34,7 @@ function collectAllPaths(obj: any, currentPath: string[], paths: Set<string>) {
   }
 }
 
-export default function JsonViewer({ initialJson, copyToLLM, hideEditingButtons }: JsonViewerProps) {
+export default function JsonViewer({ initialJson, copyToLLM, hideEditingButtons, onJsonChange }: JsonViewerProps) {
   const [jsonString, setJsonString] = useState("");
   const [parsedJson, setParsedJson] = useState<any>(initialJson);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +100,7 @@ export default function JsonViewer({ initialJson, copyToLLM, hideEditingButtons 
       const parsed = JSON.parse(value);
       setParsedJson(parsed);
       setError(null);
+      onJsonChange?.(parsed);
     } catch (err) {
       showErrorWithLineInfo(err);
     }
@@ -112,6 +114,7 @@ export default function JsonViewer({ initialJson, copyToLLM, hideEditingButtons 
       const parsed = JSON.parse(cleaned);
       setParsedJson(parsed);
       setError(null);
+      onJsonChange?.(parsed);
       toast.success("Escaped JSON cleaned and expanded successfully");
     } catch (err) {
       showErrorWithLineInfo(err);
@@ -126,6 +129,7 @@ export default function JsonViewer({ initialJson, copyToLLM, hideEditingButtons 
       const parsed = JSON.parse(expanded);
       setParsedJson(parsed);
       setError(null);
+      onJsonChange?.(parsed);
       toast.success("Stringified JSON fields expanded successfully");
     } catch (err) {
       showErrorWithLineInfo(err);
@@ -139,6 +143,7 @@ export default function JsonViewer({ initialJson, copyToLLM, hideEditingButtons 
       setJsonString(formatted);
       setParsedJson(parsed);
       setError(null);
+      onJsonChange?.(parsed);
     } catch (err) {
       showErrorWithLineInfo(err);
     }
@@ -183,6 +188,7 @@ export default function JsonViewer({ initialJson, copyToLLM, hideEditingButtons 
         setJsonString(JSON.stringify(parsed, null, 2));
         setParsedJson(parsed);
         setError(null);
+        onJsonChange?.(parsed);
       } catch (err) {
         showErrorWithLineInfo(err);
       }
@@ -216,6 +222,7 @@ export default function JsonViewer({ initialJson, copyToLLM, hideEditingButtons 
     current[path[path.length - 1]] = value;
     setParsedJson(newJson);
     setJsonString(JSON.stringify(newJson, null, 2));
+    onJsonChange?.(newJson);
   };
 
   const expandAll = () => {
@@ -225,6 +232,7 @@ export default function JsonViewer({ initialJson, copyToLLM, hideEditingButtons 
       
       setJsonString(JSON.stringify(newParsedJson, null, 2));
       setParsedJson(newParsedJson);
+      onJsonChange?.(newParsedJson);
 
       const paths = new Set<string>();
       collectAllPaths(newParsedJson, [], paths);

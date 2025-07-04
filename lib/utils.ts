@@ -119,3 +119,75 @@ export function generateJsonSchema(obj: any): any {
 
   return { type: "object" };
 }
+
+/**
+ * Encodes JSON data to be stored in URL parameters
+ * @param json - The JSON object to encode
+ * @returns URL-safe encoded string
+ */
+export function encodeJsonToUrl(json: any): string {
+  try {
+    const jsonString = JSON.stringify(json);
+    return encodeURIComponent(jsonString);
+  } catch (error) {
+    console.error("Failed to encode JSON to URL:", error);
+    return "";
+  }
+}
+
+/**
+ * Decodes JSON data from URL parameters
+ * @param encodedJson - The URL-encoded JSON string
+ * @returns Parsed JSON object or null if invalid
+ */
+export function decodeJsonFromUrl(encodedJson: string): any {
+  try {
+    const decodedString = decodeURIComponent(encodedJson);
+    return JSON.parse(decodedString);
+  } catch (error) {
+    console.error("Failed to decode JSON from URL:", error);
+    return null;
+  }
+}
+
+/**
+ * Updates the URL with encoded JSON data
+ * @param json - The JSON object to encode and store in URL
+ */
+export function updateUrlWithJson(json: any): void {
+  try {
+    const encoded = encodeJsonToUrl(json);
+    const url = new URL(window.location.href);
+    
+    if (encoded) {
+      url.searchParams.set("json", encoded);
+    } else {
+      url.searchParams.delete("json");
+    }
+    
+    // Use replaceState to avoid adding to browser history
+    window.history.replaceState({}, "", url.toString());
+  } catch (error) {
+    console.error("Failed to update URL with JSON:", error);
+  }
+}
+
+/**
+ * Gets JSON data from URL parameters
+ * @returns Parsed JSON object or null if not found/invalid
+ */
+export function getJsonFromUrl(): any {
+  try {
+    const url = new URL(window.location.href);
+    const encodedJson = url.searchParams.get("json");
+    
+    if (!encodedJson) {
+      return null;
+    }
+    
+    return decodeJsonFromUrl(encodedJson);
+  } catch (error) {
+    console.error("Failed to get JSON from URL:", error);
+    return null;
+  }
+}
